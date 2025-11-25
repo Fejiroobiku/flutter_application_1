@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/datasources/auth_service.dart';
-import '../../data/datasources/local_storage_service.dart';
+import '../bloc/auth/auth_bloc.dart';
+import '../bloc/auth/auth_state.dart';
 
 class ProfilePage extends StatelessWidget {
   final Function(int)? onNavTap;
@@ -10,18 +12,9 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authService = AuthService();
-    
-    return FutureBuilder(
-      future: authService.currentUser,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        }
-
-        final user = snapshot.data;
-        
-        if (user == null) {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, authState) {
+        if (authState is! AuthAuthenticated) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -44,6 +37,18 @@ class ProfilePage extends StatelessWidget {
           );
         }
 
+        final user = authState.user;
+        final authService = AuthService(); // Keep for dialog methods
+        
+        // Extract better name from email if name is still "User"
+        String displayName = user.name;
+        if (displayName == 'User' && user.email.isNotEmpty) {
+          displayName = user.email.split('@')[0].replaceAll('.', ' ').replaceAll('_', ' ');
+          displayName = displayName.split(' ').map((word) => 
+            word.isNotEmpty ? word[0].toUpperCase() + word.substring(1) : word
+          ).join(' ');
+        }
+
         return Scaffold(
           body: SingleChildScrollView(
             padding: EdgeInsets.all(16),
@@ -62,7 +67,7 @@ class ProfilePage extends StatelessWidget {
                         ),
                         SizedBox(height: 16),
                         Text(
-                          user.name,
+                          displayName,
                           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(height: 8),
@@ -257,6 +262,10 @@ class ProfilePage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+      },
     );
   }
 }

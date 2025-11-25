@@ -29,10 +29,23 @@ class User {
 
   // Create user from Firebase User - ADD THIS METHOD
   factory User.fromFirebaseUser(dynamic firebaseUser, {String? phone}) {
+    // Extract name from displayName or email
+    String userName = 'User';
+    if (firebaseUser.displayName != null && firebaseUser.displayName!.isNotEmpty) {
+      userName = firebaseUser.displayName!;
+    } else if (firebaseUser.email != null) {
+      // Extract name from email (before @)
+      userName = firebaseUser.email!.split('@')[0].replaceAll('.', ' ').replaceAll('_', ' ');
+      // Capitalize first letter of each word
+      userName = userName.split(' ').map((word) => 
+        word.isNotEmpty ? word[0].toUpperCase() + word.substring(1) : word
+      ).join(' ');
+    }
+    
     return User(
       id: firebaseUser.uid, // Use Firebase UID as ID
       email: firebaseUser.email ?? '',
-      name: firebaseUser.displayName ?? 'User',
+      name: userName,
       profilePictureUrl: firebaseUser.photoURL,
       createdAt: DateTime.now(),
       firebaseUid: firebaseUser.uid,

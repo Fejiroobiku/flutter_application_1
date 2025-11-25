@@ -258,9 +258,30 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                         width: double.infinity,
                                         child: ElevatedButton.icon(
                                           onPressed: () {
-                                            // TODO: Implement RSVP functionality with Firestore
+                                            // Increment attendees count in Firestore
+                                            final updatedEvent = EventEntity(
+                                              id: eventData.id,
+                                              title: eventData.title,
+                                              date: eventData.date,
+                                              time: eventData.time,
+                                              location: eventData.location,
+                                              description: eventData.description,
+                                              image: eventData.image,
+                                              attendees: eventData.attendees + 1,
+                                              organizer: eventData.organizer,
+                                              category: eventData.category,
+                                              status: eventData.status,
+                                              userId: eventData.userId,
+                                              createdAt: eventData.createdAt,
+                                            );
+                                            
+                                            context.read<EventBloc>().add(UpdateEvent(event: updatedEvent));
+                                            
                                             ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('RSVP confirmed!'))
+                                              SnackBar(
+                                                content: Text('RSVP confirmed! Attendees: ${eventData.attendees + 1}'),
+                                                backgroundColor: AppColors.emerald600,
+                                              )
                                             );
                                           },
                                           icon: Icon(Icons.check_circle, size: 20),
