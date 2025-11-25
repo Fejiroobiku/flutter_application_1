@@ -269,6 +269,18 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                           onPressed: currentUserId == null ? null : () {
                                             // Check if user already RSVP'd
                                             final hasRSVPd = eventData.attendeeIds.contains(currentUserId);
+                                            final isFull = eventData.maxAttendees != null && eventData.attendees >= eventData.maxAttendees!;
+                                            
+                                            // Don't allow new RSVP if event is full
+                                            if (!hasRSVPd && isFull) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text('Event is full! Maximum ${eventData.maxAttendees} attendees reached.'),
+                                                  backgroundColor: Colors.red,
+                                                )
+                                              );
+                                              return;
+                                            }
                                             
                                             List<String> updatedAttendeeIds;
                                             int updatedAttendeesCount;
@@ -280,16 +292,6 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                               updatedAttendeesCount = eventData.attendees - 1;
                                               message = 'RSVP cancelled';
                                             } else {
-                                              // Check if event is full
-                                              if (eventData.maxAttendees != null && eventData.attendees >= eventData.maxAttendees!) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text('Event is full! Maximum ${eventData.maxAttendees} attendees.'),
-                                                    backgroundColor: Colors.red,
-                                                  )
-                                                );
-                                                return;
-                                              }
                                               // Add RSVP
                                               updatedAttendeeIds = List<String>.from(eventData.attendeeIds)..add(currentUserId);
                                               updatedAttendeesCount = eventData.attendees + 1;
@@ -311,6 +313,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                               userId: eventData.userId,
                                               createdAt: eventData.createdAt,
                                               attendeeIds: updatedAttendeeIds,
+                                              maxAttendees: eventData.maxAttendees,
                                             );
                                             
                                             context.read<EventBloc>().add(UpdateEvent(event: updatedEvent));
@@ -325,18 +328,24 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                           icon: Icon(
                                             eventData.attendeeIds.contains(currentUserId) 
                                               ? Icons.cancel 
-                                              : Icons.check_circle, 
+                                              : (eventData.maxAttendees != null && eventData.attendees >= eventData.maxAttendees! 
+                                                  ? Icons.block 
+                                                  : Icons.check_circle), 
                                             size: 20
                                           ),
                                           label: Text(
                                             eventData.attendeeIds.contains(currentUserId) 
                                               ? 'Cancel RSVP' 
-                                              : 'RSVP Now'
+                                              : (eventData.maxAttendees != null && eventData.attendees >= eventData.maxAttendees! 
+                                                  ? 'Event Full' 
+                                                  : 'RSVP Now')
                                           ),
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: eventData.attendeeIds.contains(currentUserId)
                                               ? AppColors.gray600
-                                              : AppColors.emerald600, 
+                                              : (eventData.maxAttendees != null && eventData.attendees >= eventData.maxAttendees! 
+                                                  ? Colors.red.shade400 
+                                                  : AppColors.emerald600), 
                                             foregroundColor: Colors.white, 
                                             padding: EdgeInsets.symmetric(vertical: 16)
                                           ),
