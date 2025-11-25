@@ -59,7 +59,8 @@ class _HomePageState extends State<HomePage> {
         if (state is EventLoading) {
           isLoading = true;
         } else if (state is EventLoaded) {
-          events = state.events;
+          events = List.from(state.events)
+            ..sort((a, b) => b.date.compareTo(a.date));
         }
 
         return Scaffold(
