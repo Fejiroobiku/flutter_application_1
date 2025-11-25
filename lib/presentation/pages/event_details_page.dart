@@ -326,7 +326,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-                context.read<EventBloc>().add(DeleteEvent(eventId: event.id!));
+                context.read<EventBloc>().add(DeleteEvent(eventId: event.id));
                 Navigator.of(context).pop(); // Go back to previous page
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

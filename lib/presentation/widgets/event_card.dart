@@ -27,12 +27,10 @@ class EventCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            if (event.id != null) {
-              Navigator.push(
+            Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => EventDetailsPage(eventId: event.id!)),
+                MaterialPageRoute(builder: (context) => EventDetailsPage(eventId: event.id)),
               );
-            }
           },
           borderRadius: BorderRadius.circular(16),
           child: Column(

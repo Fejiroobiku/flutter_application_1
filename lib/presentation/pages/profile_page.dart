@@ -11,7 +11,6 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
-    final storageService = LocalStorageService();
     
     return FutureBuilder(
       future: authService.currentUser,

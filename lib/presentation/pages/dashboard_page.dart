@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../widgets/event_card.dart';
 import '../widgets/stats_card.dart';
 import '../widgets/custom_footer.dart';
 import '../../core/constants/app_colors.dart';
@@ -205,9 +204,8 @@ class _DashboardPageState extends State<DashboardPage> {
       {
         'title': 'This Month',
         'value': userEvents.where((event) => 
-          event.createdAt != null &&
-          event.createdAt!.month == DateTime.now().month && 
-          event.createdAt!.year == DateTime.now().year
+          event.createdAt.month == DateTime.now().month && 
+          event.createdAt.year == DateTime.now().year
         ).length.toString(),
         'subtitle': 'Events created',
         'icon': Icons.trending_up,
@@ -322,7 +320,7 @@ class _DashboardPageState extends State<DashboardPage> {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                context.read<EventBloc>().add(DeleteEvent(eventId: event.id!));
+                context.read<EventBloc>().add(DeleteEvent(eventId: event.id));
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Event deleted successfully'),

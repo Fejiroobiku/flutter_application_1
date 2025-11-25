@@ -3,14 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../domain/entities/event_entity.dart';
 import '../../data/datasources/event_service.dart';
-import '../../data/datasources/auth_service.dart';
 import '../../core/constants/app_colors.dart';
 import '../bloc/event/event_bloc.dart';
 import '../bloc/event/event_event.dart';
-import '../bloc/event/event_state.dart';
 import '../bloc/auth/auth_bloc.dart';
 import '../bloc/auth/auth_state.dart';
-
 class CreateEventPage extends StatefulWidget {
   final EventEntity? eventToEdit;
 
@@ -28,6 +25,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _customCategoryController = TextEditingController();
+  final TextEditingController _attendeesController = TextEditingController(text: '1');
 
   XFile? _selectedImage;
   bool _isUploading = false;
@@ -49,6 +47,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
     _titleController.text = event.title;
     _locationController.text = event.location;
     _descriptionController.text = event.description;
+    _attendeesController.text = event.attendees.toString();
     _selectedDate = event.date;
     _selectedTime = TimeOfDay.fromDateTime(event.date);
     _selectedCategory = event.category;
@@ -242,7 +241,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
           location: _locationController.text,
           description: _descriptionController.text,
           image: imageUrl,
-          attendees: isEditing ? widget.eventToEdit!.attendees : 0,
+          attendees: int.tryParse(_attendeesController.text) ?? 1,
           organizer: authState.user.name,
           category: finalCategory,
           status: 'Upcoming',
@@ -705,6 +704,49 @@ class _CreateEventPageState extends State<CreateEventPage> {
                                       SizedBox(height: 16),
                                     ],
                                   ),
+                                
+                                // Expected Attendees
+                                TextFormField(
+                                  controller: _attendeesController,
+                                  style: TextStyle(fontSize: 15),
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                    labelText: 'Expected Attendees *',
+                                    labelStyle: TextStyle(color: AppColors.gray600, fontSize: 14),
+                                    hintText: 'How many people do you expect?',
+                                    hintStyle: TextStyle(color: AppColors.gray400),
+                                    prefixIcon: Icon(Icons.people, color: AppColors.emerald600),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: AppColors.gray300),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: AppColors.gray300),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: AppColors.emerald600, width: 2),
+                                    ),
+                                    errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: Colors.red.shade300),
+                                    ),
+                                    filled: true,
+                                    fillColor: AppColors.gray50,
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter expected attendees';
+                                    }
+                                    final number = int.tryParse(value);
+                                    if (number == null || number < 1) {
+                                      return 'Please enter a valid number (minimum 1)';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                SizedBox(height: 16),
                                 
                                 // Description
                                 TextFormField(
