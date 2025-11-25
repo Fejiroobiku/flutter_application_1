@@ -21,10 +21,15 @@ dependencies:
 
   # State management
   provider: ^6.0.0
+  flutter_bloc: ^8.1.0
+  get_it: ^7.6.0
+  equatable: ^2.0.5
 
   # ADD THESE FIREBASE DEPENDENCIES:
   firebase_core: ^2.24.0
   firebase_auth: ^4.17.3
+  cloud_firestore: ^4.9.0
+  google_sign_in: ^6.1.0
 
 dev_dependencies:
   flutter_test:

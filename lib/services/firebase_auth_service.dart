@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import '../models/user.dart';
 import 'local_storage_service.dart';
+import 'user_profile_service.dart';
 
 class FirebaseAuthService {
   final firebase_auth.FirebaseAuth _auth = firebase_auth.FirebaseAuth.instance;
   final LocalStorageService _storageService = LocalStorageService();
+  final UserProfileService _userProfileService = UserProfileService();
 
   // User stream that combines Firebase and local storage
   Stream<User?> get user {
@@ -78,6 +80,17 @@ class FirebaseAuthService {
       print('🔄 Step 2: Updating display name...');
       await userCredential.user!.updateDisplayName('$firstName $lastName');
       print('✅ Step 2: Display name updated');
+
+      // 2.5 Create user profile in Firestore
+      print('🔄 Step 2.5: Creating user profile in Firestore...');
+      await _userProfileService.createUserProfile(
+        userId: userCredential.user!.uid,
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        phone: phone,
+      );
+      print('✅ Step 2.5: User profile created in Firestore');
 
       // 3. Create local user ONLY (NO BACKEND CALL)
       print('🔄 Step 3: Creating local user...');

@@ -1,0 +1,79 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // EVENTS COLLECTION
+    // - Allow reads for authenticated users
+    // - Allow creates/updates only when the authenticated user is the owner specified in the incoming data
+    // - Allow deletes only when the authenticated user is the current owner on the existing document
+    match /events/{eventId} {
+      allow read: if request.auth != null;
+
+      allow create: if request.auth != null
+        && request.auth.uid == request.resource.data.ownerId;
+
+      allow update: if request.auth != null
+        && request.auth.uid == request.resource.data.ownerId;
+
+      allow delete: if request.auth != null
+        && request.auth.uid == resource.data.ownerId;
+    }
+
+    // USERS COLLECTION
+    // - Allow users to read and modify only their own user document
+    match /users/{userId} {
+      allow create: if request.auth != null
+        && request.auth.uid == userId;
+
+      allow read, update, delete: if request.auth != null
+        && request.auth.uid == userId;
+    }
+
+    // DENY ALL OTHER ACCESSES
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ==================== USERS COLLECTION ====================
+    // Rules: Users can only read/write their own document
+    // - Prevents unauthorized access to other users' data
+    // - Ensures profile information is private
+    match /users/{userId} {
+      // Allow read if requesting user's own document
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow write if requesting user's own document
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // ==================== EVENTS COLLECTION ====================
+    // Rules: Anyone authenticated can read events
+    // Only event organizer can create/update/delete
+    // - Prevents unauthorized event modifications
+    // - Maintains data integrity
+    match /events/{eventId} {
+      // Allow read for all authenticated users
+      allow read: if request.auth != null;
+      
+      // Allow create if user is authenticated
+      // Document must have 'uid' field matching the authenticated user
+      allow create: if request.auth != null 
+        && request.resource.data.uid == request.auth.uid;
+      
+      // Allow update/delete only if uid matches authenticated user
+      allow update, delete: if request.auth != null 
+        && resource.data.uid == request.auth.uid;
+    }
+    
+    // ==================== DENY ALL OTHER ACCESS ====================
+    // Catch-all rule: deny any access to undefined paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

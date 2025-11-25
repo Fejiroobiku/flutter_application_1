@@ -1,0 +1,119 @@
+{
+  "project_info": {
+    "project_number": "745124156326",
+    "firebase_url": "https://eventhub-859b9-default-rtdb.firebaseio.com",
+    "project_id": "eventhub-859b9",
+    "storage_bucket": "eventhub-859b9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:745124156326:android:eada953f92858abb997567",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "745124156326-e6ok1c84eo2rfmahqim42mh4ha2nqdj6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8CdfFq_NQRTzRnpSh2e9GjfQx632129s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "745124156326-e6ok1c84eo2rfmahqim42mh4ha2nqdj6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "745124156326-7ula8bn3nqpfancipkq7gnrts2dm93q5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.hereBro"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:745124156326:android:60dac5f151e85cb9997567",
+        "android_client_info": {
+          "package_name": "com.example.here_bro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "745124156326-e6ok1c84eo2rfmahqim42mh4ha2nqdj6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8CdfFq_NQRTzRnpSh2e9GjfQx632129s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "745124156326-e6ok1c84eo2rfmahqim42mh4ha2nqdj6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "745124156326-7ula8bn3nqpfancipkq7gnrts2dm93q5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.hereBro"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:745124156326:android:f24d9715baf938c0997567",
+        "android_client_info": {
+          "package_name": "com.example.herebro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "745124156326-e6ok1c84eo2rfmahqim42mh4ha2nqdj6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8CdfFq_NQRTzRnpSh2e9GjfQx632129s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "745124156326-e6ok1c84eo2rfmahqim42mh4ha2nqdj6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "745124156326-7ula8bn3nqpfancipkq7gnrts2dm93q5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.hereBro"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

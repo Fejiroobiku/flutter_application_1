@@ -1,0 +1,45 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "events",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "uid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ],
+      "status": "ENABLED"
+    },
+    {
+      "collectionGroup": "events",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ],
+      "status": "ENABLED"
+    },
+    {
+      "collectionGroup": "events",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "attendeeIds",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ],
+      "status": "ENABLED"
+    }
+  ]
+}
