@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'firebase_options.dart';
@@ -16,13 +17,13 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   try {
-    print('🔄 Step 1: Starting Firebase initialization...');
+    debugPrint('🔄 Step 1: Starting Firebase initialization...');
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    print('✅ Firebase initialized successfully');
+    debugPrint('✅ Firebase initialized successfully');
   } catch (e) {
-    print('❌ Firebase initialization failed: $e');
+    debugPrint('❌ Firebase initialization failed: $e');
     // Show error screen instead of white screen
     runApp(ErrorApp(error: e.toString()));
     return;

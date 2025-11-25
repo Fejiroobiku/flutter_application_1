@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import '../models/user.dart';
 import 'local_storage_service.dart';
@@ -32,7 +33,7 @@ class AuthService {
     required String phone,
   }) async {
     try {
-      print('🔄 Attempting Firebase registration for: $email');
+      debugPrint('🔄 Attempting Firebase registration for: $email');
       
       // Use Firebase registration
       final user = await _firebaseAuth.registerWithEmailAndPassword(
@@ -43,14 +44,14 @@ class AuthService {
         phone: phone,
       );
       
-      print('✅ Firebase registration successful for: $email');
+      debugPrint('✅ Firebase registration successful for: $email');
       return user;
       
     } catch (e) {
-      print('❌ Firebase registration failed: $e');
+      debugPrint('❌ Firebase registration failed: $e');
       
       // Fallback to local storage if Firebase fails
-      print('🔄 Falling back to local storage registration...');
+      debugPrint('🔄 Falling back to local storage registration...');
       
       final users = await _storageService.getUsers();
       final existingUser = users.values.firstWhere(
@@ -75,7 +76,7 @@ class AuthService {
       await _storageService.saveUser(newUser);
       await _storageService.setCurrentUser(newUser);
 
-      print('✅ Local storage registration successful for: $email');
+      debugPrint('✅ Local storage registration successful for: $email');
       return newUser;
     }
   }
@@ -86,7 +87,7 @@ class AuthService {
     required String password,
   }) async {
     try {
-      print('🔄 Attempting Firebase login for: $email');
+      debugPrint('🔄 Attempting Firebase login for: $email');
       
       // Use Firebase login
       final user = await _firebaseAuth.loginWithEmailAndPassword(
@@ -94,14 +95,14 @@ class AuthService {
         password: password,
       );
       
-      print('✅ Firebase login successful for: $email');
+      debugPrint('✅ Firebase login successful for: $email');
       return user;
       
     } catch (e) {
-      print('❌ Firebase login failed: $e');
+      debugPrint('❌ Firebase login failed: $e');
       
       // Fallback to local storage if Firebase fails
-      print('🔄 Falling back to local storage login...');
+      debugPrint('🔄 Falling back to local storage login...');
       
       if (email.isEmpty || password.isEmpty) {
         throw Exception('Please enter email and password');
@@ -123,7 +124,7 @@ class AuthService {
       }
 
       await _storageService.setCurrentUser(user);
-      print('✅ Local storage login successful for: $email');
+      debugPrint('✅ Local storage login successful for: $email');
       return user;
     }
   }
@@ -131,28 +132,28 @@ class AuthService {
   // Password reset - USE FIREBASE
   Future<void> resetPassword({required String email}) async {
     try {
-      print('🔄 Attempting Firebase password reset for: $email');
+      debugPrint('🔄 Attempting Firebase password reset for: $email');
       await _firebaseAuth.resetPassword(email: email);
-      print('✅ Firebase password reset email sent to: $email');
+      debugPrint('✅ Firebase password reset email sent to: $email');
     } catch (e) {
-      print('❌ Firebase password reset failed: $e');
+      debugPrint('❌ Firebase password reset failed: $e');
       // Fallback: just log for local users
-      print('🔄 Using local storage fallback for password reset...');
+      debugPrint('🔄 Using local storage fallback for password reset...');
       await Future.delayed(Duration(seconds: 1));
-      print('📧 Password reset requested for: $email (local user)');
+      debugPrint('📧 Password reset requested for: $email (local user)');
     }
   }
 
   // Logout - USE FIREBASE
   Future<void> logout() async {
     try {
-      print('🔄 Attempting Firebase logout...');
+      debugPrint('🔄 Attempting Firebase logout...');
       await _firebaseAuth.signOut();
-      print('✅ Firebase logout successful');
+      debugPrint('✅ Firebase logout successful');
     } catch (e) {
-      print('❌ Firebase logout failed: $e');
+      debugPrint('❌ Firebase logout failed: $e');
       await _storageService.logout();
-      print('✅ Local storage logout successful');
+      debugPrint('✅ Local storage logout successful');
     }
   }
 
@@ -163,15 +164,15 @@ class AuthService {
     String? profilePictureUrl,
   }) async {
     try {
-      print('🔄 Attempting Firebase profile update...');
+      debugPrint('🔄 Attempting Firebase profile update...');
       final user = await _firebaseAuth.updateProfile(
         name: name ?? '',
         profilePictureUrl: profilePictureUrl,
       );
-      print('✅ Firebase profile update successful');
+      debugPrint('✅ Firebase profile update successful');
       return user;
     } catch (e) {
-      print('❌ Firebase profile update failed: $e');
+      debugPrint('❌ Firebase profile update failed: $e');
       // Fallback to local storage
       final user = await _storageService.getUser(userId);
       if (user == null) {
@@ -195,7 +196,7 @@ class AuthService {
         await _storageService.setCurrentUser(updatedUser);
       }
 
-      print('✅ Local storage profile update successful');
+      debugPrint('✅ Local storage profile update successful');
       return updatedUser;
     }
   }
@@ -207,13 +208,13 @@ class AuthService {
       final user = firebase_auth.FirebaseAuth.instance.currentUser;
       if (user != null) {
         await user.delete();
-        print('✅ Firebase user deleted');
+        debugPrint('✅ Firebase user deleted');
       }
     } catch (e) {
-      print('❌ Could not delete Firebase user: $e');
+      debugPrint('❌ Could not delete Firebase user: $e');
     }
     
     await _storageService.logout();
-    print('✅ Local storage cleared');
+    debugPrint('✅ Local storage cleared');
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/event.dart';
 import '../models/user.dart';
@@ -21,7 +22,7 @@ class LocalStorageService {
     
     final usersJson = users.map((key, value) => MapEntry(key, value.toJson()));
     await prefs.setString(_usersKey, json.encode(usersJson));
-    print('💾 User saved: ${user.name}');
+    debugPrint('💾 User saved: ${user.name}');
   }
 
   Future<Map<String, User>> getUsers() async {
@@ -34,7 +35,7 @@ class LocalStorageService {
       final usersJson = json.decode(usersString) as Map<String, dynamic>;
       return usersJson.map((key, value) => MapEntry(key, User.fromJson(value)));
     } catch (e) {
-      print('❌ Error parsing users: $e');
+      debugPrint('❌ Error parsing users: $e');
       return {};
     }
   }
@@ -46,7 +47,6 @@ class LocalStorageService {
 
   // Event management
   Future<void> saveEvent(Event event) async {
-    final prefs = await SharedPreferences.getInstance();
     final events = await getAllEvents();
     final index = events.indexWhere((e) => e.id == event.id);
     
@@ -57,7 +57,7 @@ class LocalStorageService {
     }
     
     await _saveEvents(events);
-    print('💾 Event saved: ${event.title}');
+    debugPrint('💾 Event saved: ${event.title}');
   }
 
   Future<List<Event>> getAllEvents() async {

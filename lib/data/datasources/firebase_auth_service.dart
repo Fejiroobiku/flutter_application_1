@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import '../models/user.dart';
 import 'local_storage_service.dart';
@@ -64,7 +65,7 @@ class FirebaseAuthService {
     required String phone,
   }) async {
     try {
-      print('🔄 Step 1: Creating user in Firebase Auth...');
+      debugPrint('🔄 Step 1: Creating user in Firebase Auth...');
       
       // 1. Create user in Firebase Auth ONLY
       firebase_auth.UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
@@ -72,15 +73,15 @@ class FirebaseAuthService {
         password: password,
       );
 
-      print('✅ Step 1: Firebase user created: ${userCredential.user!.uid}');
+      debugPrint('✅ Step 1: Firebase user created: ${userCredential.user!.uid}');
 
       // 2. Update display name in Firebase
-      print('🔄 Step 2: Updating display name...');
+      debugPrint('🔄 Step 2: Updating display name...');
       await userCredential.user!.updateDisplayName('$firstName $lastName');
-      print('✅ Step 2: Display name updated');
+      debugPrint('✅ Step 2: Display name updated');
 
       // 3. Create local user ONLY (NO BACKEND CALL)
-      print('🔄 Step 3: Creating local user...');
+      debugPrint('🔄 Step 3: Creating local user...');
       final user = User(
         id: userCredential.user!.uid,
         email: email,
@@ -94,12 +95,12 @@ class FirebaseAuthService {
       await _storageService.saveUser(user);
       await _storageService.setCurrentUser(user);
 
-      print('✅ Step 3: Local user created and saved');
-      print('🎉 Registration completed successfully!');
+      debugPrint('✅ Step 3: Local user created and saved');
+      debugPrint('🎉 Registration completed successfully!');
 
       return user;
     } catch (e) {
-      print('❌ Registration failed: $e');
+      debugPrint('❌ Registration failed: $e');
       rethrow;
     }
   }
@@ -110,24 +111,24 @@ class FirebaseAuthService {
     required String password,
   }) async {
     try {
-      print('🔄 Attempting Firebase login for: $email');
+      debugPrint('🔄 Attempting Firebase login for: $email');
       
       final userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      print('✅ Firebase login successful: ${userCredential.user!.uid}');
+      debugPrint('✅ Firebase login successful: ${userCredential.user!.uid}');
 
       // Get or create local user
       final user = User.fromFirebaseUser(userCredential.user!);
       await _storageService.saveUser(user);
       await _storageService.setCurrentUser(user);
 
-      print('✅ Local user synchronized');
+      debugPrint('✅ Local user synchronized');
       return user;
     } catch (e) {
-      print('❌ Login failed: $e');
+      debugPrint('❌ Login failed: $e');
       rethrow;
     }
   }
@@ -137,7 +138,7 @@ class FirebaseAuthService {
     try {
       await _auth.signOut();
       await _storageService.logout();
-      print('✅ Signed out from Firebase and local storage');
+      debugPrint('✅ Signed out from Firebase and local storage');
     } catch (e) {
       rethrow;
     }
@@ -147,7 +148,7 @@ class FirebaseAuthService {
   Future<void> resetPassword({required String email}) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
-      print('✅ Password reset email sent to: $email');
+      debugPrint('✅ Password reset email sent to: $email');
     } catch (e) {
       rethrow;
     }

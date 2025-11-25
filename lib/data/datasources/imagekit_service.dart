@@ -1,19 +1,18 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
 class ImageKitService {
   // Your actual ImageKit.io credentials
-  static const String _publicKey = 'public_X6pKMSKm8XWwYJnOg+G7bW3JXxs=';
   static const String _privateKey = 'private_96ppahcfit0+msTuHdT74Tk2Ltk=';
-  static const String _urlEndpoint = 'https://ik.imagekit.io/pmuaxqqut/';
   
   static const String _uploadUrl = 'https://upload.imagekit.io/api/v1/files/upload';
 
   // Upload image to ImageKit.io
   static Future<ImageKitResponse> uploadEventImage(XFile imageFile, {String? fileName}) async {
     try {
-      print('🔄 Starting image upload to ImageKit.io...');
+      debugPrint('🔄 Starting image upload to ImageKit.io...');
       final fileBytes = await imageFile.readAsBytes();
       
       var request = http.MultipartRequest('POST', Uri.parse(_uploadUrl))
@@ -31,20 +30,20 @@ class ImageKitService {
       final base64Auth = base64Encode(utf8.encode(authString));
       request.headers['Authorization'] = 'Basic $base64Auth';
 
-      print('📤 Uploading image to ImageKit.io...');
+      debugPrint('📤 Uploading image to ImageKit.io...');
       final response = await request.send();
       final responseData = await response.stream.bytesToString();
       final jsonResponse = json.decode(responseData);
 
       if (response.statusCode == 200) {
-        print('✅ Image uploaded successfully: ${jsonResponse['url']}');
+        debugPrint('✅ Image uploaded successfully: ${jsonResponse['url']}');
         return ImageKitResponse.fromJson(jsonResponse);
       } else {
-        print('❌ Image upload failed: ${jsonResponse['message']}');
+        debugPrint('❌ Image upload failed: ${jsonResponse['message']}');
         throw Exception('Upload failed: ${jsonResponse['message']}');
       }
     } catch (e) {
-      print('❌ Image upload error: $e');
+      debugPrint('❌ Image upload error: $e');
       throw Exception('Upload error: $e');
     }
   }
@@ -52,7 +51,7 @@ class ImageKitService {
   // Upload profile picture
   static Future<ImageKitResponse> uploadProfilePicture(XFile imageFile, String userId) async {
     try {
-      print('🔄 Uploading profile picture for user: $userId');
+      debugPrint('🔄 Uploading profile picture for user: $userId');
       final fileBytes = await imageFile.readAsBytes();
       
       var request = http.MultipartRequest('POST', Uri.parse(_uploadUrl))
@@ -74,7 +73,7 @@ class ImageKitService {
       final jsonResponse = json.decode(responseData);
 
       if (response.statusCode == 200) {
-        print('✅ Profile picture uploaded successfully: ${jsonResponse['url']}');
+        debugPrint('✅ Profile picture uploaded successfully: ${jsonResponse['url']}');
         return ImageKitResponse.fromJson(jsonResponse);
       } else {
         throw Exception('Upload failed: ${jsonResponse['message']}');

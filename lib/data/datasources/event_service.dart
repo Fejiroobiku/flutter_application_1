@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/event.dart';
 import './imagekit_service.dart';
@@ -13,11 +14,11 @@ class EventService {
   // Initialize with mock data if no events exist
   Future<void> initializeMockData() async {
     final existingEvents = await _storageService.getAllEvents();
-    print('🔄 EventService: Checking if mock data needed. Current events: ${existingEvents.length}');
+    debugPrint('🔄 EventService: Checking if mock data needed. Current events: ${existingEvents.length}');
     if (existingEvents.isEmpty) {
-      print('🎯 EventService: Initializing with ${mockEvents.length} mock events');
+      debugPrint('🎯 EventService: Initializing with ${mockEvents.length} mock events');
       await _storageService.saveEvents(mockEvents);
-      print('✅ EventService: Mock events saved to storage');
+      debugPrint('✅ EventService: Mock events saved to storage');
     }
   }
 
@@ -69,9 +70,9 @@ class EventService {
   // Get all events
   Future<List<Event>> getEvents() async {
     final events = await _storageService.getAllEvents();
-    print('📅 EventService: Loaded ${events.length} events from storage');
+    debugPrint('📅 EventService: Loaded ${events.length} events from storage');
     if (events.isEmpty) {
-      print('⚠️ EventService: No events found, initializing mock data');
+      debugPrint('⚠️ EventService: No events found, initializing mock data');
       await initializeMockData();
       return await _storageService.getAllEvents();
     }
@@ -107,7 +108,7 @@ class EventService {
         final response = await ImageKitService.uploadEventImage(imageFile);
         imageUrl = response.url;
       } catch (e) {
-        print('Failed to upload image: $e');
+        debugPrint('Failed to upload image: $e');
         // Use a placeholder image if upload fails
         imageUrl = 'https://picsum.photos/400/300?random=${DateTime.now().millisecondsSinceEpoch}';
       }
@@ -199,7 +200,7 @@ class EventService {
         .where((event) => event.date.isAfter(now))
         .toList()
         ..sort((a, b) => a.date.compareTo(b.date));
-    print('🚀 EventService: Found ${upcoming.length} upcoming events');
+    debugPrint('🚀 EventService: Found ${upcoming.length} upcoming events');
     return upcoming;
   }
 
