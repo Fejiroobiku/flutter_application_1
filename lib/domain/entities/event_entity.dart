@@ -16,6 +16,7 @@ class EventEntity extends Equatable {
   final String? userId;
   final DateTime createdAt;
   final List<String> attendeeIds; // Track user IDs who RSVP'd
+  final int? maxAttendees; // Maximum number of attendees allowed
 
   const EventEntity({
     required this.id,
@@ -32,6 +33,7 @@ class EventEntity extends Equatable {
     this.userId,
     required this.createdAt,
     this.attendeeIds = const [],
+    this.maxAttendees,
   });
 
   @override
@@ -50,5 +52,6 @@ class EventEntity extends Equatable {
         userId,
         createdAt,
         attendeeIds,
+        maxAttendees,
       ];
 }

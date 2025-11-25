@@ -18,6 +18,7 @@ class EventModel extends EventEntity {
     super.userId,
     required super.createdAt,
     super.attendeeIds = const [],
+    super.maxAttendees,
   });
 
   /// Convert from Firestore document
@@ -38,6 +39,7 @@ class EventModel extends EventEntity {
       userId: data['userId'],
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       attendeeIds: data['attendeeIds'] != null ? List<String>.from(data['attendeeIds']) : [],
+      maxAttendees: data['maxAttendees'],
     );
   }
 
@@ -57,6 +59,7 @@ class EventModel extends EventEntity {
       'userId': userId,
       'createdAt': Timestamp.fromDate(createdAt),
       'attendeeIds': attendeeIds,
+      'maxAttendees': maxAttendees,
     };
   }
 
@@ -77,6 +80,7 @@ class EventModel extends EventEntity {
       userId: entity.userId,
       createdAt: entity.createdAt,
       attendeeIds: entity.attendeeIds,
+      maxAttendees: entity.maxAttendees,
     );
   }
 }

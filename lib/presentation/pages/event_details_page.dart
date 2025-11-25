@@ -167,12 +167,21 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                       Container(
                                         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                         decoration: BoxDecoration(
-                                          color: AppColors.emerald100, 
+                                          color: eventData.maxAttendees != null && eventData.attendees >= eventData.maxAttendees!
+                                              ? Colors.red.shade100
+                                              : AppColors.emerald100, 
                                           borderRadius: BorderRadius.circular(16)
                                         ),
                                         child: Text(
-                                          '${eventData.attendees} attending', 
-                                          style: TextStyle(color: AppColors.emerald600, fontWeight: FontWeight.w500)
+                                          eventData.maxAttendees != null
+                                              ? '${eventData.attendees}/${eventData.maxAttendees} attending'
+                                              : '${eventData.attendees} attending', 
+                                          style: TextStyle(
+                                            color: eventData.maxAttendees != null && eventData.attendees >= eventData.maxAttendees!
+                                                ? Colors.red.shade700
+                                                : AppColors.emerald600, 
+                                            fontWeight: FontWeight.w500
+                                          )
                                         ),
                                       ),
                                     ],
@@ -271,6 +280,16 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                               updatedAttendeesCount = eventData.attendees - 1;
                                               message = 'RSVP cancelled';
                                             } else {
+                                              // Check if event is full
+                                              if (eventData.maxAttendees != null && eventData.attendees >= eventData.maxAttendees!) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text('Event is full! Maximum ${eventData.maxAttendees} attendees.'),
+                                                    backgroundColor: Colors.red,
+                                                  )
+                                                );
+                                                return;
+                                              }
                                               // Add RSVP
                                               updatedAttendeeIds = List<String>.from(eventData.attendeeIds)..add(currentUserId);
                                               updatedAttendeesCount = eventData.attendees + 1;

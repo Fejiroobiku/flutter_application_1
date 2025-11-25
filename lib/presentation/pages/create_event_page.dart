@@ -25,7 +25,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _customCategoryController = TextEditingController();
-  final TextEditingController _attendeesController = TextEditingController(text: '1');
+  final TextEditingController _maxAttendeesController = TextEditingController();
 
   XFile? _selectedImage;
   bool _isUploading = false;
@@ -47,7 +47,9 @@ class _CreateEventPageState extends State<CreateEventPage> {
     _titleController.text = event.title;
     _locationController.text = event.location;
     _descriptionController.text = event.description;
-    _attendeesController.text = event.attendees.toString();
+    if (event.maxAttendees != null) {
+      _maxAttendeesController.text = event.maxAttendees.toString();
+    }
     _selectedDate = event.date;
     _selectedTime = TimeOfDay.fromDateTime(event.date);
     _selectedCategory = event.category;
@@ -233,6 +235,10 @@ class _CreateEventPageState extends State<CreateEventPage> {
         }
 
         // Create or update event entity for Firestore
+        final int? maxAttendees = _maxAttendeesController.text.isNotEmpty 
+            ? int.tryParse(_maxAttendeesController.text) 
+            : null;
+        
         final eventData = EventEntity(
           id: isEditing ? widget.eventToEdit!.id : DateTime.now().millisecondsSinceEpoch.toString(),
           title: _titleController.text,
@@ -241,13 +247,14 @@ class _CreateEventPageState extends State<CreateEventPage> {
           location: _locationController.text,
           description: _descriptionController.text,
           image: imageUrl,
-          attendees: int.tryParse(_attendeesController.text) ?? 1,
+          attendees: isEditing ? widget.eventToEdit!.attendeeIds.length : 0,
           organizer: authState.user.name,
           category: finalCategory,
           status: 'Upcoming',
           userId: authState.user.id,
           createdAt: isEditing ? widget.eventToEdit!.createdAt : DateTime.now(),
           attendeeIds: isEditing ? widget.eventToEdit!.attendeeIds : [],
+          maxAttendees: maxAttendees,
         );
 
         // Save to Firestore via EventBloc
@@ -706,17 +713,17 @@ class _CreateEventPageState extends State<CreateEventPage> {
                                     ],
                                   ),
                                 
-                                // Expected Attendees
+                                // Max Attendees
                                 TextFormField(
-                                  controller: _attendeesController,
+                                  controller: _maxAttendeesController,
                                   style: TextStyle(fontSize: 15),
                                   keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
-                                    labelText: 'Expected Attendees *',
+                                    labelText: 'Maximum Attendees (Optional)',
                                     labelStyle: TextStyle(color: AppColors.gray600, fontSize: 14),
-                                    hintText: 'How many people do you expect?',
+                                    hintText: 'Leave empty for unlimited',
                                     hintStyle: TextStyle(color: AppColors.gray400),
-                                    prefixIcon: Icon(Icons.people, color: AppColors.emerald600),
+                                    prefixIcon: Icon(Icons.group, color: AppColors.emerald600),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
                                       borderSide: BorderSide(color: AppColors.gray300),
@@ -737,12 +744,14 @@ class _CreateEventPageState extends State<CreateEventPage> {
                                     fillColor: AppColors.gray50,
                                   ),
                                   validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter expected attendees';
-                                    }
-                                    final number = int.tryParse(value);
-                                    if (number == null || number < 1) {
-                                      return 'Please enter a valid number (minimum 1)';
+                                    if (value != null && value.isNotEmpty) {
+                                      final number = int.tryParse(value);
+                                      if (number == null) {
+                                        return 'Please enter a valid number';
+                                      }
+                                      if (number < 1) {
+                                        return 'Must be at least 1';
+                                      }
                                     }
                                     return null;
                                   },

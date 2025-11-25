@@ -194,7 +194,9 @@ class EventCard extends StatelessWidget {
                             ),
                             SizedBox(width: 6),
                             Text(
-                              '${event.attendees} attending',
+                              event.maxAttendees != null
+                                  ? '${event.attendees}/${event.maxAttendees}'
+                                  : '${event.attendees} attending',
                               style: TextStyle(
                                 fontSize: 13,
                                 color: AppColors.gray600,
