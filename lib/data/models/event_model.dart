@@ -17,6 +17,7 @@ class EventModel extends EventEntity {
     super.status,
     super.userId,
     required super.createdAt,
+    super.attendeeIds = const [],
   });
 
   /// Convert from Firestore document
@@ -36,6 +37,7 @@ class EventModel extends EventEntity {
       status: data['status'],
       userId: data['userId'],
       createdAt: (data['createdAt'] as Timestamp).toDate(),
+      attendeeIds: data['attendeeIds'] != null ? List<String>.from(data['attendeeIds']) : [],
     );
   }
 
@@ -54,6 +56,7 @@ class EventModel extends EventEntity {
       'status': status,
       'userId': userId,
       'createdAt': Timestamp.fromDate(createdAt),
+      'attendeeIds': attendeeIds,
     };
   }
 
@@ -73,6 +76,7 @@ class EventModel extends EventEntity {
       status: entity.status,
       userId: entity.userId,
       createdAt: entity.createdAt,
+      attendeeIds: entity.attendeeIds,
     );
   }
 }

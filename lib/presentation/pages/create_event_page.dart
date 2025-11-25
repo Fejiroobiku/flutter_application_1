@@ -247,6 +247,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
           status: 'Upcoming',
           userId: authState.user.id,
           createdAt: isEditing ? widget.eventToEdit!.createdAt : DateTime.now(),
+          attendeeIds: isEditing ? widget.eventToEdit!.attendeeIds : [],
         );
 
         // Save to Firestore via EventBloc

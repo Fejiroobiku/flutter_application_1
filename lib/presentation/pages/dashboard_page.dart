@@ -113,7 +113,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                         childAspectRatio: 1.2,
                                       ),
                                       itemCount: 4,
-                                      itemBuilder: (context, index) => _buildStatsCard(index, userEvents),
+                                      itemBuilder: (context, index) => _buildStatsCard(index, userEvents, allEvents, currentUser.id),
                                     ),
                               SizedBox(height: 24),
 
@@ -175,9 +175,12 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildStatsCard(int index, List<EventEntity> userEvents) {
+  Widget _buildStatsCard(int index, List<EventEntity> userEvents, List<EventEntity> allEvents, String currentUserId) {
     final createdCount = userEvents.length;
-    final attendingCount = 0; // You can implement this if needed
+    // Count events where current user has RSVP'd (not created by them)
+    final attendingCount = allEvents.where((event) => 
+      event.attendeeIds.contains(currentUserId) && event.userId != currentUserId
+    ).length;
 
     final stats = [
       {

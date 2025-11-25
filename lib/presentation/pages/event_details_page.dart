@@ -257,8 +257,26 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                       SizedBox(
                                         width: double.infinity,
                                         child: ElevatedButton.icon(
-                                          onPressed: () {
-                                            // Increment attendees count in Firestore
+                                          onPressed: currentUserId == null ? null : () {
+                                            // Check if user already RSVP'd
+                                            final hasRSVPd = eventData.attendeeIds.contains(currentUserId);
+                                            
+                                            List<String> updatedAttendeeIds;
+                                            int updatedAttendeesCount;
+                                            String message;
+                                            
+                                            if (hasRSVPd) {
+                                              // Cancel RSVP
+                                              updatedAttendeeIds = List<String>.from(eventData.attendeeIds)..remove(currentUserId);
+                                              updatedAttendeesCount = eventData.attendees - 1;
+                                              message = 'RSVP cancelled';
+                                            } else {
+                                              // Add RSVP
+                                              updatedAttendeeIds = List<String>.from(eventData.attendeeIds)..add(currentUserId);
+                                              updatedAttendeesCount = eventData.attendees + 1;
+                                              message = 'RSVP confirmed!';
+                                            }
+                                            
                                             final updatedEvent = EventEntity(
                                               id: eventData.id,
                                               title: eventData.title,
@@ -267,27 +285,39 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                               location: eventData.location,
                                               description: eventData.description,
                                               image: eventData.image,
-                                              attendees: eventData.attendees + 1,
+                                              attendees: updatedAttendeesCount,
                                               organizer: eventData.organizer,
                                               category: eventData.category,
                                               status: eventData.status,
                                               userId: eventData.userId,
                                               createdAt: eventData.createdAt,
+                                              attendeeIds: updatedAttendeeIds,
                                             );
                                             
                                             context.read<EventBloc>().add(UpdateEvent(event: updatedEvent));
                                             
                                             ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(
-                                                content: Text('RSVP confirmed! Attendees: ${eventData.attendees + 1}'),
-                                                backgroundColor: AppColors.emerald600,
+                                                content: Text('$message Total attendees: $updatedAttendeesCount'),
+                                                backgroundColor: hasRSVPd ? AppColors.gray600 : AppColors.emerald600,
                                               )
                                             );
                                           },
-                                          icon: Icon(Icons.check_circle, size: 20),
-                                          label: Text('RSVP Now'),
+                                          icon: Icon(
+                                            eventData.attendeeIds.contains(currentUserId) 
+                                              ? Icons.cancel 
+                                              : Icons.check_circle, 
+                                            size: 20
+                                          ),
+                                          label: Text(
+                                            eventData.attendeeIds.contains(currentUserId) 
+                                              ? 'Cancel RSVP' 
+                                              : 'RSVP Now'
+                                          ),
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: AppColors.emerald600, 
+                                            backgroundColor: eventData.attendeeIds.contains(currentUserId)
+                                              ? AppColors.gray600
+                                              : AppColors.emerald600, 
                                             foregroundColor: Colors.white, 
                                             padding: EdgeInsets.symmetric(vertical: 16)
                                           ),

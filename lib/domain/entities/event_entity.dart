@@ -15,6 +15,7 @@ class EventEntity extends Equatable {
   final String? status;
   final String? userId;
   final DateTime createdAt;
+  final List<String> attendeeIds; // Track user IDs who RSVP'd
 
   const EventEntity({
     required this.id,
@@ -30,6 +31,7 @@ class EventEntity extends Equatable {
     this.status,
     this.userId,
     required this.createdAt,
+    this.attendeeIds = const [],
   });
 
   @override
@@ -47,5 +49,6 @@ class EventEntity extends Equatable {
         status,
         userId,
         createdAt,
+        attendeeIds,
       ];
 }
