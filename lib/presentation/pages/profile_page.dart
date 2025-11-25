@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import '../../data/datasources/auth_service.dart';
 import '../bloc/auth/auth_bloc.dart';
 import '../bloc/auth/auth_state.dart';
+import 'settings_page.dart';
 
 class ProfilePage extends StatelessWidget {
   final Function(int)? onNavTap;
@@ -134,7 +135,10 @@ class ProfilePage extends StatelessWidget {
                         title: Text('Settings'),
                         trailing: Icon(Icons.chevron_right),
                         onTap: () {
-                          // Navigate to settings
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SettingsPage()),
+                          );
                         },
                       ),
                       ListTile(

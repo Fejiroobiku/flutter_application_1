@@ -70,14 +70,14 @@ class LocalStorageService {
       final List<dynamic> eventsJson = json.decode(eventsString);
       return eventsJson.map((json) => Event.fromJson(json)).toList();
     } catch (e) {
-      print('❌ Error parsing events: $e');
+      debugPrint('❌ Error parsing events: $e');
       return [];
     }
   }
 
   Future<void> saveEvents(List<Event> events) async {
     await _saveEvents(events);
-    print('💾 ${events.length} events saved');
+    debugPrint('💾 ${events.length} events saved');
   }
 
   Future<void> _saveEvents(List<Event> events) async {
@@ -90,14 +90,14 @@ class LocalStorageService {
     final events = await getAllEvents();
     events.removeWhere((event) => event.id == eventId);
     await _saveEvents(events);
-    print('🗑️ Event deleted: $eventId');
+    debugPrint('🗑️ Event deleted: $eventId');
   }
 
   // Current user session
   Future<void> setCurrentUser(User user) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_currentUserKey, json.encode(user.toJson()));
-    print('👤 Current user set: ${user.name}');
+    debugPrint('👤 Current user set: ${user.name}');
   }
 
   Future<User?> getCurrentUser() async {
@@ -109,7 +109,7 @@ class LocalStorageService {
     try {
       return User.fromJson(json.decode(userString));
     } catch (e) {
-      print('❌ Error parsing current user: $e');
+      debugPrint('❌ Error parsing current user: $e');
       return null;
     }
   }
@@ -117,7 +117,7 @@ class LocalStorageService {
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_currentUserKey);
-    print('👤 User logged out');
+    debugPrint('👤 User logged out');
   }
 
   // App data management
@@ -143,6 +143,6 @@ class LocalStorageService {
   Future<void> clearAllData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
-    print('🧹 All data cleared');
+    debugPrint('🧹 All data cleared');
   }
 }
