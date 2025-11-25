@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
-import '../widgets/custom_footer.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../widgets/event_card.dart';
 import '../widgets/stats_card.dart';
-import '../constants/app_colors.dart';
-import '../services/auth_service.dart';
-import '../services/event_service.dart';
-import '../services/local_storage_service.dart';
+import '../widgets/custom_footer.dart';
+import '../../core/constants/app_colors.dart';
+import '../../domain/entities/event_entity.dart';
+import '../bloc/auth/auth_bloc.dart';
+import '../bloc/auth/auth_state.dart';
+import '../bloc/event/event_bloc.dart';
+import '../bloc/event/event_event.dart';
+import '../bloc/event/event_state.dart';
 import 'create_event_page.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -17,58 +22,47 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  final _authService = AuthService();
-  final _eventService = EventService();
-  final _storageService = LocalStorageService();
-
-  List<dynamic> _userEvents = [];
-  bool _isLoading = true;
-
   @override
   void initState() {
     super.initState();
-    _loadUserData();
-  }
-
-  Future<void> _loadUserData() async {
-    final currentUser = await _authService.currentUser;
-    if (currentUser != null) {
-      final events = await _eventService.getEventsByOrganizer(currentUser.id);
-      setState(() {
-        _userEvents = events;
-        _isLoading = false;
-      });
-    } else {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    // Load events from Firestore
+    context.read<EventBloc>().add(const LoadEvents());
   }
 
   Future<void> _refreshData() async {
-    setState(() {
-      _isLoading = true;
-    });
-    await _loadUserData();
+    context.read<EventBloc>().add(const LoadEvents());
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder(
-        future: _authService.currentUser,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, authState) {
+        if (authState is! AuthAuthenticated) {
+          return Scaffold(
+            body: Center(
+              child: Text('Please login to view dashboard'),
+            ),
+          );
+        }
 
-          final currentUser = snapshot.data;
-          
-          return currentUser == null
-              ? Center(
-                  child: Text('Please login to view dashboard'),
-                )
-              : RefreshIndicator(
+        final currentUser = authState.user;
+
+        return BlocBuilder<EventBloc, EventState>(
+          builder: (context, eventState) {
+            List<EventEntity> allEvents = [];
+            bool isLoading = false;
+
+            if (eventState is EventLoading) {
+              isLoading = true;
+            } else if (eventState is EventLoaded) {
+              allEvents = eventState.events;
+            }
+
+            // Filter events by current user
+            final userEvents = allEvents.where((event) => event.userId == currentUser.id).toList();
+
+            return Scaffold(
+              body: RefreshIndicator(
                   onRefresh: _refreshData,
                   child: SingleChildScrollView(
                     child: Column(
@@ -103,7 +97,7 @@ class _DashboardPageState extends State<DashboardPage> {
                               SizedBox(height: 24),
 
                               // User Stats
-                              _isLoading
+                              isLoading
                                   ? Container(
                                       height: 200,
                                       child: Center(
@@ -120,7 +114,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                         childAspectRatio: 1.2,
                                       ),
                                       itemCount: 4,
-                                      itemBuilder: (context, index) => _buildStatsCard(index),
+                                      itemBuilder: (context, index) => _buildStatsCard(index, userEvents),
                                     ),
                               SizedBox(height: 24),
 
@@ -144,9 +138,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                         ]
                                       ),
                                       SizedBox(height: 16),
-                                      _isLoading
+                                      isLoading
                                           ? Center(child: CircularProgressIndicator(color: AppColors.emerald600))
-                                          : _userEvents.isEmpty
+                                          : userEvents.isEmpty
                                               ? Container(
                                                   padding: EdgeInsets.all(32),
                                                   child: Column(
@@ -161,7 +155,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                                   ),
                                                 )
                                               : Column(
-                                                  children: _userEvents.map((event) => _buildEventItem(event)).toList(),
+                                                  children: userEvents.map((event) => _buildEventItem(event)).toList(),
                                                 ),
                                     ],
                                   ),
@@ -174,14 +168,16 @@ class _DashboardPageState extends State<DashboardPage> {
                       ],
                     ),
                   ),
-                );
-        },
-      ),
+                ),
+              );
+          },
+        );
+      },
     );
   }
 
-  Widget _buildStatsCard(int index) {
-    final createdCount = _userEvents.length;
+  Widget _buildStatsCard(int index, List<EventEntity> userEvents) {
+    final createdCount = userEvents.length;
     final attendingCount = 0; // You can implement this if needed
 
     final stats = [
@@ -201,16 +197,17 @@ class _DashboardPageState extends State<DashboardPage> {
       },
       {
         'title': 'Total Attendees',
-        'value': _userEvents.fold(0, (sum, event) => sum + (event.attendees as int)).toString(),
+        'value': userEvents.fold(0, (sum, event) => sum + event.attendees).toString(),
         'subtitle': 'Across all events',
         'icon': Icons.people,
         'color': AppColors.purple600,
       },
       {
         'title': 'This Month',
-        'value': _userEvents.where((event) => 
-          event.createdAt.month == DateTime.now().month && 
-          event.createdAt.year == DateTime.now().year
+        'value': userEvents.where((event) => 
+          event.createdAt != null &&
+          event.createdAt!.month == DateTime.now().month && 
+          event.createdAt!.year == DateTime.now().year
         ).length.toString(),
         'subtitle': 'Events created',
         'icon': Icons.trending_up,
@@ -230,7 +227,7 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildEventItem(dynamic event) {
+  Widget _buildEventItem(EventEntity event) {
     return Container(
       margin: EdgeInsets.only(bottom: 12),
       padding: EdgeInsets.all(12),
@@ -282,7 +279,74 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ],
           ),
+          SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton.icon(
+                onPressed: () => _showDeleteDialog(event),
+                icon: Icon(Icons.delete_outline, size: 16, color: Colors.red),
+                label: Text('Delete', style: TextStyle(color: Colors.red, fontSize: 12)),
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                ),
+              ),
+              SizedBox(width: 8),
+              TextButton.icon(
+                onPressed: () => _navigateToEditEvent(event),
+                icon: Icon(Icons.edit_outlined, size: 16, color: AppColors.emerald600),
+                label: Text('Edit', style: TextStyle(color: AppColors.emerald600, fontSize: 12)),
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                ),
+              ),
+            ],
+          ),
         ],
+      ),
+    );
+  }
+
+  void _showDeleteDialog(EventEntity event) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Event'),
+          content: Text('Are you sure you want to delete "${event.title}"? This action cannot be undone.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.read<EventBloc>().add(DeleteEvent(eventId: event.id!));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Event deleted successfully'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _navigateToEditEvent(EventEntity event) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreateEventPage(eventToEdit: event),
       ),
     );
   }

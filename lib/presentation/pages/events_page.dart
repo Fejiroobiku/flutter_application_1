@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../widgets/custom_footer.dart';
 import '../widgets/event_card.dart';
-import '../services/event_service.dart';
-import '../constants/app_colors.dart';
+import '../../core/constants/app_colors.dart';
+import '../../domain/entities/event_entity.dart';
+import '../bloc/event/event_bloc.dart';
+import '../bloc/event/event_event.dart';
+import '../bloc/event/event_state.dart';
 
 class EventsPage extends StatefulWidget {
   final Function(int)? onNavTap;
@@ -15,18 +19,80 @@ class EventsPage extends StatefulWidget {
 
 class _EventsPageState extends State<EventsPage> {
   final TextEditingController _searchController = TextEditingController();
-  final _eventService = EventService();
   String _selectedCategory = 'All';
+  List<EventEntity> _filteredEvents = [];
   
-  final List<String> _categories = ['All', 'Business', 'Sports', 'Music', 'Art', 'Technology', 'Community'];
-  List<dynamic> _events = [];
-  List<dynamic> _filteredEvents = [];
-  bool _isLoading = true;
+  final List<String> _categories = [
+    'All',
+    'Business',
+    'Conference',
+    'Workshop',
+    'Seminar',
+    'Networking',
+    'Sports',
+    'Football',
+    'Basketball',
+    'Marathon',
+    'Fitness',
+    'Music',
+    'Concert',
+    'Festival',
+    'Live Performance',
+    'DJ Night',
+    'Art',
+    'Exhibition',
+    'Gallery Opening',
+    'Art Class',
+    'Painting',
+    'Technology',
+    'Hackathon',
+    'Tech Talk',
+    'Product Launch',
+    'Coding Bootcamp',
+    'Community',
+    'Charity',
+    'Fundraiser',
+    'Volunteer',
+    'Social Gathering',
+    'Education',
+    'Training',
+    'Lecture',
+    'Study Group',
+    'Webinar',
+    'Entertainment',
+    'Comedy Show',
+    'Theater',
+    'Movie Screening',
+    'Gaming',
+    'Food & Drink',
+    'Food Festival',
+    'Wine Tasting',
+    'Cooking Class',
+    'Restaurant Opening',
+    'Health & Wellness',
+    'Yoga',
+    'Meditation',
+    'Health Fair',
+    'Mental Health',
+    'Fashion',
+    'Fashion Show',
+    'Trunk Show',
+    'Shopping Event',
+    'Religious',
+    'Church Service',
+    'Prayer Meeting',
+    'Religious Festival',
+    'Politics',
+    'Political Rally',
+    'Town Hall',
+    'Debate',
+  ];
 
   @override
   void initState() {
     super.initState();
-    _loadEvents();
+    // Load events from Firestore
+    context.read<EventBloc>().add(const LoadEvents());
   }
 
   @override
@@ -35,17 +101,8 @@ class _EventsPageState extends State<EventsPage> {
     super.dispose();
   }
 
-  Future<void> _loadEvents() async {
-    final events = await _eventService.getEvents();
-    setState(() {
-      _events = events;
-      _filteredEvents = events;
-      _isLoading = false;
-    });
-  }
-
-  void _filterEvents() {
-    List<dynamic> filtered = _events;
+  void _filterEvents(List<EventEntity> allEvents) {
+    List<EventEntity> filtered = allEvents;
 
     if (_searchController.text.isNotEmpty) {
       final query = _searchController.text.toLowerCase();
@@ -70,9 +127,26 @@ class _EventsPageState extends State<EventsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocBuilder<EventBloc, EventState>(
+      builder: (context, state) {
+        List<EventEntity> allEvents = [];
+        bool isLoading = false;
+
+        if (state is EventLoading) {
+          isLoading = true;
+        } else if (state is EventLoaded) {
+          allEvents = state.events;
+          // Apply filters whenever events change
+          if (_filteredEvents.isEmpty && _searchController.text.isEmpty && _selectedCategory == 'All') {
+            _filteredEvents = allEvents;
+          }
+        }
+
+        return Scaffold(
       body: RefreshIndicator(
-        onRefresh: _loadEvents,
+        onRefresh: () async {
+          context.read<EventBloc>().add(const LoadEvents());
+        },
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -93,7 +167,7 @@ class _EventsPageState extends State<EventsPage> {
                         // Search TextField
                         TextField(
                           controller: _searchController,
-                          onChanged: (value) => _filterEvents(),
+                          onChanged: (value) => _filterEvents(allEvents),
                           decoration: InputDecoration(
                             hintText: 'Search events...',
                             prefixIcon: Icon(Icons.search, color: AppColors.gray400),
@@ -119,7 +193,7 @@ class _EventsPageState extends State<EventsPage> {
                           value: _selectedCategory,
                           onChanged: (value) {
                             setState(() => _selectedCategory = value!);
-                            _filterEvents();
+                            _filterEvents(allEvents);
                           },
                           decoration: InputDecoration(
                             labelText: 'Category',
@@ -151,7 +225,7 @@ class _EventsPageState extends State<EventsPage> {
                     SizedBox(height: 24),
                     
                     // Events List
-                    _isLoading
+                    isLoading
                         ? Center(
                             child: Padding(
                               padding: EdgeInsets.all(24),
@@ -193,6 +267,8 @@ class _EventsPageState extends State<EventsPage> {
           ),
         ),
       ),
+        );
+      },
     );
   }
 }

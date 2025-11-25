@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../widgets/custom_footer.dart';
-import '../constants/app_colors.dart';
-import '../services/auth_service.dart';
+import '../../core/constants/app_colors.dart';
+import '../bloc/auth/auth_bloc.dart';
+import '../bloc/auth/auth_event.dart';
+import '../bloc/auth/auth_state.dart';
 import 'login_page.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -17,12 +20,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   
-  final _authService = AuthService();
-  
-  bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  String? _errorMessage;
 
   @override
   void dispose() {
@@ -35,7 +34,7 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
-  Future<void> _handleRegister() async {
+  void _handleRegister() {
     // Validation
     if (_firstNameController.text.isEmpty ||
         _lastNameController.text.isEmpty ||
@@ -56,35 +55,17 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      await _authService.signUp(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-        firstName: _firstNameController.text.trim(),
-        lastName: _lastNameController.text.trim(),
-        phone: _phoneController.text.trim(),
-      );
-
-      if (mounted) {
-        // FIXED: Navigate to home which shows MainAppShell with bottom navigation
-        Navigator.pushReplacementNamed(context, '/home');
-      }
-    } catch (e) {
-      _showError(e.toString());
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+    final fullName = '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}';
+    
+    context.read<AuthBloc>().add(RegisterRequested(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+      name: fullName,
+      phone: _phoneController.text.trim(),
+    ));
   }
 
   void _showError(String message) {
-    setState(() => _errorMessage = message);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -96,7 +77,19 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthAuthenticated) {
+          Navigator.pushReplacementNamed(context, '/home');
+        } else if (state is AuthError) {
+          _showError(state.message);
+        }
+      },
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          final isLoading = state is AuthLoading;
+          
+          return Scaffold(
       appBar: AppBar(
         title: Row(
           children: [
@@ -145,26 +138,10 @@ class _RegisterPageState extends State<RegisterPage> {
                       SizedBox(height: 24),
                       Column(
                         children: [
-                          // Error Message
-                          if (_errorMessage != null)
-                            Container(
-                              padding: EdgeInsets.all(12),
-                              margin: EdgeInsets.only(bottom: 16),
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade50,
-                                border: Border.all(color: Colors.red.shade200),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                _errorMessage!,
-                                style: TextStyle(color: Colors.red.shade700, fontSize: 12),
-                              ),
-                            ),
-
                           // First Name
                           TextField(
                             controller: _firstNameController,
-                            enabled: !_isLoading,
+                            enabled: !isLoading,
                             decoration: InputDecoration(
                               labelText: 'First Name',
                               prefixIcon: Icon(Icons.person_outline, color: AppColors.emerald600),
@@ -184,7 +161,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           // Last Name
                           TextField(
                             controller: _lastNameController,
-                            enabled: !_isLoading,
+                            enabled: !isLoading,
                             decoration: InputDecoration(
                               labelText: 'Last Name',
                               prefixIcon: Icon(Icons.person_outline, color: AppColors.emerald600),
@@ -204,7 +181,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           // Email
                           TextField(
                             controller: _emailController,
-                            enabled: !_isLoading,
+                            enabled: !isLoading,
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
                               labelText: 'Email',
@@ -225,7 +202,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           // Phone Number
                           TextField(
                             controller: _phoneController,
-                            enabled: !_isLoading,
+                            enabled: !isLoading,
                             keyboardType: TextInputType.phone,
                             decoration: InputDecoration(
                               labelText: 'Phone Number',
@@ -246,7 +223,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           // Password
                           TextField(
                             controller: _passwordController,
-                            enabled: !_isLoading,
+                            enabled: !isLoading,
                             obscureText: _obscurePassword,
                             decoration: InputDecoration(
                               labelText: 'Password',
@@ -274,7 +251,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           // Confirm Password
                           TextField(
                             controller: _confirmPasswordController,
-                            enabled: !_isLoading,
+                            enabled: !isLoading,
                             obscureText: _obscureConfirmPassword,
                             decoration: InputDecoration(
                               labelText: 'Confirm Password',
@@ -304,13 +281,13 @@ class _RegisterPageState extends State<RegisterPage> {
                             width: double.infinity,
                             height: 48,
                             child: ElevatedButton(
-                              onPressed: _isLoading ? null : _handleRegister,
+                              onPressed: isLoading ? null : _handleRegister,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.emerald600,
                                 foregroundColor: Colors.white,
                                 disabledBackgroundColor: AppColors.gray400,
                               ),
-                              child: _isLoading
+                              child: isLoading
                                   ? SizedBox(
                                       height: 20,
                                       width: 20,
@@ -333,7 +310,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             children: [
                               Text('Already have an account? ', style: TextStyle(color: AppColors.gray600)),
                               TextButton(
-                                onPressed: _isLoading ? null : () => Navigator.push(
+                                onPressed: isLoading ? null : () => Navigator.push(
                                   context,
                                   MaterialPageRoute(builder: (context) => LoginPage()),
                                 ),
@@ -351,6 +328,9 @@ class _RegisterPageState extends State<RegisterPage> {
             CustomFooter(),
           ],
         ),
+      ),
+          );
+        },
       ),
     );
   }

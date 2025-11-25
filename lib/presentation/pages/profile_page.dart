@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
-import '../services/auth_service.dart';
-import '../services/local_storage_service.dart';
+import '../../core/constants/app_colors.dart';
+import '../../data/datasources/auth_service.dart';
+import '../../data/datasources/local_storage_service.dart';
 
 class ProfilePage extends StatelessWidget {
   final Function(int)? onNavTap;
