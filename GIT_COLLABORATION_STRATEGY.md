@@ -252,6 +252,103 @@ git push origin <your-branch>
 
 ---
 
+## 📁 FILES BY BRANCH/OWNER
+
+### **Branch: sougnabe-contributions** (18 files)
+```
+lib/domain/repositories/auth_repository.dart
+lib/data/datasources/firebase_auth_service.dart
+lib/data/datasources/auth_service.dart
+lib/data/datasources/google_auth_datasource.dart
+lib/data/repositories/auth_repository_impl.dart
+lib/presentation/bloc/auth/auth_event.dart
+lib/presentation/bloc/auth/auth_state.dart
+lib/presentation/bloc/auth/auth_bloc.dart
+lib/presentation/pages/login_page.dart
+lib/presentation/pages/register_page.dart
+README.md (lines 151-250 - architecture section)
+android/app/build.gradle.kts
+ios/Runner/Info.plist
+[3 bug fix commits on various auth files]
+```
+
+### **Branch: josue-contributions** (18 files)
+```
+lib/domain/entities/event_entity.dart
+lib/domain/repositories/event_repository.dart
+lib/data/models/event_model.dart
+lib/data/models/event.dart
+lib/data/datasources/firestore_event_datasource.dart
+lib/data/datasources/event_service.dart
+lib/data/repositories/event_repository_impl.dart
+lib/presentation/bloc/event/event_event.dart
+lib/presentation/bloc/event/event_state.dart
+lib/presentation/bloc/event/event_bloc.dart
+lib/presentation/pages/events_page.dart
+lib/presentation/pages/event_details_page.dart
+lib/presentation/pages/create_event_page.dart
+README.md (lines 251-350 - Firebase setup section)
+[3 bug fix commits on various event files]
+```
+
+### **Branch: fejiro-contributions** (18 files)
+```
+lib/core/constants/app_colors.dart
+web/index.html
+web/manifest.json
+lib/presentation/widgets/custom_footer.dart
+lib/presentation/widgets/stats_card.dart
+lib/presentation/widgets/event_card.dart
+lib/presentation/widgets/custom_navbar.dart
+lib/presentation/widgets/main_app_shell.dart
+lib/presentation/pages/home_page.dart
+lib/presentation/pages/dashboard_page.dart
+lib/main.dart
+README.md (lines 51-150 - features section)
+QUICK_START.md
+android/build.gradle.kts
+android/settings.gradle.kts
+ios/Runner/AppDelegate.swift
+linux/CMakeLists.txt
+windows/CMakeLists.txt
+macos/Runner/AppDelegate.swift
+[3 bug fix commits on various UI files]
+```
+
+### **Branch: sheryl-contributions** (18 files)
+```
+lib/core/services/preferences_service.dart
+android/gradle.properties
+lib/domain/entities/user_entity.dart
+lib/data/models/user_model.dart
+lib/data/models/user.dart
+lib/data/datasources/firestore_user_datasource.dart
+lib/data/datasources/user_profile_service.dart
+lib/data/datasources/imagekit_service.dart
+lib/presentation/pages/profile_page.dart
+lib/presentation/pages/settings_page.dart
+README.md (lines 351-450 - installation section)
+SUBMISSION_CHECKLIST.md
+[3 bug fix commits on settings/profile files]
+```
+
+### **Branch: digne-contributions** (18 files)
+```
+pubspec.yaml
+analysis_options.yaml
+lib/firebase_options.dart
+README.md (lines 1-50 - overview section)
+.gitignore
+lib/data/datasources/backend_service.dart
+lib/data/datasources/local_storage_service.dart
+test/widget_test.dart (6 separate commits for tests)
+README.md (lines 451-end - testing & limitations)
+GIT_COLLABORATION_STRATEGY.md
+[3 bug fix commits on various files]
+```
+
+---
+
 ## ⏱️ TIMELINE
 
 - **Minutes 0-5:** Setup (clone, copy files, create branches)
