@@ -7,7 +7,8 @@ class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       return web; // ADD THIS - return web configuration for web platform
-    }
+
+         }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
@@ -23,8 +24,10 @@ class DefaultFirebaseOptions {
           'DefaultFirebaseOptions have not been configured for windows - '
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
+            
       case TargetPlatform.linux:
-        throw UnsupportedError(
+    
+            throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
@@ -36,13 +39,14 @@ class DefaultFirebaseOptions {
   }
 
   // ADD WEB CONFIGURATION
-  static const FirebaseOptions web = FirebaseOptions(
+    static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyB5lq6ENqiH37ry42H85ybPqf-6csNDREk',
     appId: '1:745124156326:web:d76966e73e4c8414997567',
     messagingSenderId: '745124156326',
     projectId: 'eventhub-859b9',
     authDomain: 'eventhub-859b9.firebaseapp.com',
     storageBucket: 'eventhub-859b9.appspot.com',
+  
   );
 
   static const FirebaseOptions android = FirebaseOptions(
